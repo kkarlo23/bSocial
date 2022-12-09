@@ -18,3 +18,17 @@ func CreateComment(commentData *domain.Comment) (*domain.Comment, error) {
 
 	return &post, nil
 }
+
+func GetCommentForKafka(commentID uint) (*domain.KafkaComment, error) {
+	var kafkaComment domain.KafkaComment
+	result := MySql.Table("comments").
+		Where("comments.id = ?", commentID).
+		Select("comments.id, comments.created_at, comments.content, comments.post_id, posts.user_id, users.username, users.email").
+		Joins("join posts on comments.post_id = posts.id").
+		Joins("join users on posts.user_id = users.id").
+		Scan(&kafkaComment)
+	if result.Error != nil {
+		return nil, GenericDBError()
+	}
+	return &kafkaComment, nil
+}

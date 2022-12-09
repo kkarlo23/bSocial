@@ -49,7 +49,7 @@ func GetUsers() ([]domain.User, error) {
 func CreateUser(userData domain.User) (*domain.User, error) {
 	if isAble, err := ableToCreateUser(userData); err != nil || !isAble {
 		if !isAble {
-			return nil, errors.New("user already in use")
+			return nil, errors.New("username already in use")
 		}
 		return nil, err
 	}

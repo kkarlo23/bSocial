@@ -3,6 +3,7 @@ package rest
 import (
 	"bSocial/domain"
 	"bSocial/helpers"
+	"bSocial/interface/kafkaProducer"
 	"bSocial/interface/mysql"
 
 	"github.com/gofiber/fiber/v2"
@@ -25,18 +26,20 @@ func apiRegister() func(c *fiber.Ctx) error {
 		}
 		passHash, err := helpers.HashPassword(userData.ReqPassword)
 		if err != nil {
-			ResponseWithError(c, err.Error(), nil)
+			return ResponseWithError(c, err.Error(), nil)
 		}
 		userData.Password = passHash
 		newUser, err := mysql.CreateUser(userData.User)
 		if err != nil {
-			ResponseWithError(c, err.Error(), nil)
+			return ResponseWithError(c, err.Error(), nil)
 		}
 
 		err = mysql.UserFollow(newUser.ID, newUser.ID)
 		if err != nil {
 			return err
 		}
+		// TODO: handle error
+		kafkaProducer.ProduceUserRegister(*newUser)
 
 		return ResponseWithData(c, newUser)
 	}
@@ -59,7 +62,7 @@ func apiLogin() func(c *fiber.Ctx) error {
 		}
 		token, exp, err := helpers.CreateJWTToken(*user)
 		if err != nil {
-			ResponseWithError(c, err.Error(), nil)
+			return ResponseWithError(c, err.Error(), nil)
 		}
 		return ResponseWithData(c, fiber.Map{"token": token, "exp": exp, "user": user})
 	}

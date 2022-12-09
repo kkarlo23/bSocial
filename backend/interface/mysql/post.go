@@ -32,3 +32,16 @@ func GetPostsForUser(userID uint) ([]domain.Post, error) {
 	}
 	return posts, nil
 }
+
+func GetPostsForKafka(postID uint) (*domain.KafkaPost, error) {
+	var kafkaPost domain.KafkaPost
+	result := MySql.Table("posts").
+		Where("posts.id = ?", postID).
+		Select("posts.id, posts.created_at, posts.content, posts.user_id, users.username, users.email").
+		Joins("join users on posts.user_id = users.id").
+		Scan(&kafkaPost)
+	if result.Error != nil {
+		return nil, GenericDBError()
+	}
+	return &kafkaPost, nil
+}

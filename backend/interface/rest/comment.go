@@ -2,6 +2,7 @@ package rest
 
 import (
 	"bSocial/domain"
+	"bSocial/interface/kafkaProducer"
 	"bSocial/interface/mysql"
 	"strconv"
 
@@ -27,7 +28,20 @@ func apiPostComment() func(c *fiber.Ctx) error {
 			return ResponseWithError(c, "", errors)
 		}
 		commentData.PostID = uint(getIntPostID)
-		newComment, _ := mysql.CreateComment(commentData)
+		newComment, err := mysql.CreateComment(commentData)
+
+		if err != nil {
+			return ResponseWithError(c, err.Error(), nil)
+		}
+
+		// TODO: handle error
+		kafkaComment, err := mysql.GetCommentForKafka(newComment.ID)
+
+		if err != nil {
+			return ResponseWithError(c, err.Error(), nil)
+		}
+
+		kafkaProducer.ProduceComment(*kafkaComment)
 
 		return ResponseWithData(c, newComment)
 	}

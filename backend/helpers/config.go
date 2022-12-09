@@ -11,6 +11,19 @@ type MySQLConfig struct {
 	DbHost     string `json:"dbHost"`
 	DbPort     string `json:"dbPort"`
 }
+
+type KafkaTopic struct {
+	Name      string `json:"name"`
+	Partition int    `json:"partition"`
+}
+type KafkaConfig struct {
+	KafkaProtocol     string     `json:"kafkaProtocol"`
+	KafkaHost         string     `json:"kafkaHost"`
+	KafkaPort         string     `json:"kafkaPort"`
+	UserRegisterTopic KafkaTopic `json:"userRegisterTopic"`
+	PostTopic         KafkaTopic `json:"postTopic"`
+	CommentTopic      KafkaTopic `json:"commentTopic"`
+}
 type JsonConfig struct {
 	Secret    string `json:"secret"`
 	ExpMinute int    `json:"expMinute"`
@@ -18,6 +31,7 @@ type JsonConfig struct {
 
 type Config struct {
 	MySQL MySQLConfig `json:"mySql"`
+	Kafka KafkaConfig `json:"kafka"`
 	Json  JsonConfig  `json:"json"`
 }
 

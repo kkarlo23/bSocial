@@ -3,6 +3,7 @@ package rest
 import (
 	"bSocial/domain"
 	"bSocial/helpers"
+	"bSocial/interface/kafkaProducer"
 	"bSocial/interface/mysql"
 
 	"github.com/gofiber/fiber/v2"
@@ -29,6 +30,15 @@ func apiPostPost() func(c *fiber.Ctx) error {
 		if err != nil {
 			return ResponseWithError(c, err.Error(), nil)
 		}
+
+		kafkaPost, err := mysql.GetPostsForKafka(newPost.ID)
+
+		if err != nil {
+			return ResponseWithError(c, err.Error(), nil)
+		}
+
+		// TODO: handle error
+		kafkaProducer.ProducePost(*kafkaPost)
 
 		return ResponseWithData(c, newPost)
 	}
