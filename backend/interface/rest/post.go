@@ -13,29 +13,37 @@ func InitPostApi(api fiber.Router) {
 	api.Get("/post", apiGetPosts())
 }
 
+// creates a posts for current (logged in) user
 func apiPostPost() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		thisUserID := helpers.ExtractJWTUserID(c)
 		postData := new(domain.Post)
 		if err := c.BodyParser(postData); err != nil {
-			return err
+			return ResponseWithError(c, err.Error(), nil)
 		}
 		if errors := domain.ValidateType(*postData); errors != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(errors)
+			return ResponseWithError(c, "", errors)
 		}
 		postData.UserID = thisUserID
-		newPost, _ := mysql.CreatePost(postData)
+		newPost, err := mysql.CreatePost(postData)
+		if err != nil {
+			return ResponseWithError(c, err.Error(), nil)
+		}
 
-		return c.JSON(newPost)
+		return ResponseWithData(c, newPost)
 	}
 }
 
+// returns all posts from users that current (logged in) user is following
 func apiGetPosts() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		thisUserID := helpers.ExtractJWTUserID(c)
 
-		posts, _ := mysql.GetPostsForUser(thisUserID)
+		posts, err := mysql.GetPostsForUser(thisUserID)
+		if err != nil {
+			return ResponseWithError(c, err.Error(), nil)
+		}
 
-		return c.JSON(posts)
+		return ResponseWithData(c, posts)
 	}
 }

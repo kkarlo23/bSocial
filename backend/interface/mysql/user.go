@@ -27,12 +27,12 @@ func GetUserByUsernameAndPassword(username, password string) (*domain.User, erro
 		return nil, result.Error
 	}
 	if len(users) == 0 {
-		return nil, errors.New("err")
+		return nil, errors.New("wrong username or password")
 	}
 	user = &users[0]
 	isCorrectPassword := helpers.CheckPasswordHash(password, user.Password)
 	if !isCorrectPassword {
-		return nil, errors.New("err")
+		return nil, errors.New("wrong username or password")
 	}
 	return user, nil
 }
@@ -49,7 +49,7 @@ func GetUsers() ([]domain.User, error) {
 func CreateUser(userData domain.User) (*domain.User, error) {
 	if isAble, err := ableToCreateUser(userData); err != nil || !isAble {
 		if !isAble {
-			return nil, errors.New("user with email or username already exists")
+			return nil, errors.New("user already in use")
 		}
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func CreateUser(userData domain.User) (*domain.User, error) {
 
 	var user domain.User
 
-	// need to fetch user again because date have no value after create
+	// need to fetch user again because CreatedAt have no value after create
 	if resultSelect := MySql.Where("id = ?", userData.ID).First(&user); resultSelect.Error != nil {
 		return nil, resultSelect.Error
 	}

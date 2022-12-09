@@ -10,19 +10,19 @@ type validateInterface interface {
 
 var validate = validator.New()
 
-type ErrorResponse struct {
+type ErrorValidate struct {
 	FailedField string
 	Tag         string
 	Value       string
 }
 
-func ValidateType[T validateInterface](model T) []*ErrorResponse {
-	var errors []*ErrorResponse
+func ValidateType[T validateInterface](model T) []*ErrorValidate {
+	var errors []*ErrorValidate
 
 	err := validate.Struct(model)
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
-			var element ErrorResponse
+			var element ErrorValidate
 			element.FailedField = err.StructField()
 			element.Tag = err.Tag()
 			element.Value = err.Param()

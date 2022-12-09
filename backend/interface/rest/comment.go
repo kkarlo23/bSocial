@@ -12,22 +12,23 @@ func InitCommentApi(api fiber.Router) {
 	api.Post("/comment/:postID", apiPostComment())
 }
 
+// creates a user comment for specific postID
 func apiPostComment() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		getIntPostID, err := strconv.ParseInt(c.Params("postID"), 10, 32)
 		if err != nil {
-			return err
+			return ResponseWithError(c, err.Error(), nil)
 		}
 		commentData := new(domain.Comment)
 		if err := c.BodyParser(commentData); err != nil {
-			return err
+			return ResponseWithError(c, err.Error(), nil)
 		}
 		if errors := domain.ValidateType(*commentData); errors != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(errors)
+			return ResponseWithError(c, "", errors)
 		}
 		commentData.PostID = uint(getIntPostID)
 		newComment, _ := mysql.CreateComment(commentData)
 
-		return c.JSON(newComment)
+		return ResponseWithData(c, newComment)
 	}
 }

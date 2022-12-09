@@ -13,46 +13,54 @@ func InitAuthApi(api fiber.Router) {
 	api.Post("/login", apiLogin())
 }
 
+// creates a new user
 func apiRegister() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		userData := new(domain.ApiRegister)
 		if err := c.BodyParser(userData); err != nil {
-			return err
+			return ResponseWithError(c, err.Error(), nil)
 		}
 		if errors := domain.ValidateType(*userData); errors != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(errors)
+			return ResponseWithError(c, "", errors)
 		}
-		passHash, _ := helpers.HashPassword(userData.ReqPassword)
+		passHash, err := helpers.HashPassword(userData.ReqPassword)
+		if err != nil {
+			ResponseWithError(c, err.Error(), nil)
+		}
 		userData.Password = passHash
-		newUser, _ := mysql.CreateUser(userData.User)
+		newUser, err := mysql.CreateUser(userData.User)
+		if err != nil {
+			ResponseWithError(c, err.Error(), nil)
+		}
 
-		err := mysql.UserFollow(newUser.ID, newUser.ID)
+		err = mysql.UserFollow(newUser.ID, newUser.ID)
 		if err != nil {
 			return err
 		}
 
-		return c.JSON(newUser)
+		return ResponseWithData(c, newUser)
 	}
 }
 
+// returns jwt if user data is valid
 func apiLogin() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		loginData := new(domain.ApiLogin)
 		if err := c.BodyParser(loginData); err != nil {
-			return err
+			return ResponseWithError(c, err.Error(), nil)
 		}
 		if errors := domain.ValidateType(*loginData); errors != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(errors)
+			return ResponseWithError(c, "", errors)
 		}
 
 		user, err := mysql.GetUserByUsernameAndPassword(loginData.Username, loginData.Password)
 		if err != nil {
-			return err
+			return ResponseWithError(c, err.Error(), nil)
 		}
 		token, exp, err := helpers.CreateJWTToken(*user)
 		if err != nil {
-			return err
+			ResponseWithError(c, err.Error(), nil)
 		}
-		return c.JSON(fiber.Map{"token": token, "exp": exp, "user": user})
+		return ResponseWithData(c, fiber.Map{"token": token, "exp": exp, "user": user})
 	}
 }

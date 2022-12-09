@@ -15,8 +15,11 @@ func InitUserApi(api fiber.Router) {
 
 func apiGetUsers() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		users, _ := mysql.GetUsers()
-		return c.JSON(users)
+		users, err := mysql.GetUsers()
+		if err != nil {
+			return ResponseWithError(c, err.Error(), nil)
+		}
+		return ResponseWithData(c, users)
 	}
 }
 
@@ -25,14 +28,14 @@ func apiPostUserFollow() func(c *fiber.Ctx) error {
 		thisUserID := helpers.ExtractJWTUserID(c)
 		getUserIDInt64, err := strconv.ParseInt(c.Params("userID"), 10, 32)
 		if err != nil {
-			return err
+			return ResponseWithError(c, err.Error(), nil)
 		}
 		getUserID := uint(getUserIDInt64)
 
 		err = mysql.UserFollow(thisUserID, getUserID)
 		if err != nil {
-			return err
+			return ResponseWithError(c, err.Error(), nil)
 		}
-		return c.JSON("created")
+		return ResponseWithData(c, 1)
 	}
 }

@@ -23,6 +23,7 @@ type Config struct {
 
 var CONFIG Config
 
+// unpacks config file
 func InitConfig() error {
 	jsonData, err := os.ReadFile("./config.json")
 	if err != nil {

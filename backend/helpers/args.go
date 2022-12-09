@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-// TODO: add more functionality
-
 func GetArgs() map[string]string {
 	args := make(map[string]string)
 	for _, arg := range os.Args[1:] {
