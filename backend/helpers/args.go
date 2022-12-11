@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"errors"
+	"log"
 	"os"
 	"strings"
 )
@@ -11,7 +12,7 @@ func GetArgs() map[string]string {
 	for _, arg := range os.Args[1:] {
 		key, val, err := normalizeArgs(arg)
 		if err != nil {
-			panic(err)
+			log.Fatalf("Error reading arguments: %s", err)
 		}
 		args[key] = val
 	}

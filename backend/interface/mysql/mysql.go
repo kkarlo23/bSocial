@@ -11,7 +11,7 @@ import (
 
 var MySql *gorm.DB
 
-func InitConnection() *gorm.DB {
+func InitConnection() error {
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN: fmt.Sprintf("%s:%s@tcp(%s:%s)/bSocialDB?charset=utf8mb4&parseTime=True&loc=Local",
 			helpers.CONFIG.MySQL.DbUser,
@@ -26,10 +26,10 @@ func InitConnection() *gorm.DB {
 	}), &gorm.Config{})
 
 	if err != nil {
-		panic("Cannot connect to database")
+		return err
 	}
 	MySql = db
-	return db
+	return nil
 }
 
 func AutoMigrate() {
