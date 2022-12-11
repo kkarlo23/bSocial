@@ -1,0 +1,24 @@
+Here is list of queries that I prepared:
+________________________________________________________________________________
+
+1. A query that returns the count of registered players per day
+
+POST user_register/_search
+{
+  "size": 0,
+  "aggs": {
+    "group_by_day": {
+      "date_histogram": {
+        "field": "createdAt",
+        "calendar_interval": "day"
+      }
+    }
+  }
+}
+
+________________________________________________________________________________
+
+2. A query that returns the top 10 posts (by the number of comments) per day in the last
+10 days (the results don’t have to be 100% accurate, but the general idea needs to
+be followed).
+
