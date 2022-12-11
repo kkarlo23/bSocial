@@ -19,14 +19,22 @@ func CreatePost(postData *domain.Post) (*domain.Post, error) {
 	return &post, nil
 }
 
-func GetPostsForUser(userID uint) ([]domain.Post, error) {
+func GetPostsForUser(userID uint, rowsPerPage int64, page int64) ([]domain.Post, error) {
 	var followingIDS []uint
 	var posts []domain.Post
-	result := MySql.Table("user_followers").Where("follower_id = ?", userID).Select("following_id").Find(&followingIDS)
+
+	result := MySql.Table("user_followers").
+		Where("follower_id = ?", userID).
+		Select("following_id").
+		Find(&followingIDS)
 	if result.Error != nil {
 		return nil, GenericDBError()
 	}
-	result = MySql.Where("user_id IN ?", followingIDS).Find(&posts)
+
+	result = MySql.Where("user_id IN ?", followingIDS).
+		Limit(int(rowsPerPage)).
+		Offset(int((page - 1) * rowsPerPage)).
+		Find(&posts)
 	if result.Error != nil {
 		return nil, GenericDBError()
 	}

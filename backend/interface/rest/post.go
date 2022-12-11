@@ -5,6 +5,7 @@ import (
 	"bSocial/helpers"
 	"bSocial/interface/kafkaProducer"
 	"bSocial/interface/mysql"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -49,7 +50,17 @@ func apiGetPosts() func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		thisUserID := helpers.ExtractJWTUserID(c)
 
-		posts, err := mysql.GetPostsForUser(thisUserID)
+		rowsPerPage, err := strconv.ParseInt(c.Query("rowsPerPage"), 10, 64)
+		if err != nil {
+			rowsPerPage = 10
+		}
+
+		page, err := strconv.ParseInt(c.Query("page"), 10, 64)
+		if err != nil {
+			page = 1
+		}
+
+		posts, err := mysql.GetPostsForUser(thisUserID, rowsPerPage, page)
 		if err != nil {
 			return ResponseWithError(c, err.Error(), nil)
 		}
