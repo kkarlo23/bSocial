@@ -19,6 +19,7 @@ func CreatePost(postData *domain.Post) (*domain.Post, error) {
 	return &post, nil
 }
 
+// Not task specified, but I think posts should be shown in backwards order
 func GetPostsForUser(userID uint, rowsPerPage int64, page int64) ([]domain.Post, error) {
 	var followingIDS []uint
 	var posts []domain.Post
@@ -34,6 +35,7 @@ func GetPostsForUser(userID uint, rowsPerPage int64, page int64) ([]domain.Post,
 	result = MySql.Where("user_id IN ?", followingIDS).
 		Limit(int(rowsPerPage)).
 		Offset(int((page - 1) * rowsPerPage)).
+		Order("created_at DESC").
 		Find(&posts)
 	if result.Error != nil {
 		return nil, GenericDBError()

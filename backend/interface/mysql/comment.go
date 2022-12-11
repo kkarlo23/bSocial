@@ -19,6 +19,14 @@ func CreateComment(commentData *domain.Comment) (*domain.Comment, error) {
 	return &post, nil
 }
 
+func GetCommentsForPost(postID uint) ([]domain.Comment, error) {
+	var comments []domain.Comment
+	if result := MySql.Where("post_id = ?", postID).Find(&comments); result.Error != nil {
+		return nil, GenericDBError()
+	}
+	return comments, nil
+}
+
 func GetCommentForKafka(commentID uint) (*domain.KafkaComment, error) {
 	var kafkaComment domain.KafkaComment
 	result := MySql.Table("comments").

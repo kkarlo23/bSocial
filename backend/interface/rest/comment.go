@@ -11,6 +11,7 @@ import (
 
 func InitCommentApi(api fiber.Router) {
 	api.Post("/comment/:postID", apiPostComment())
+	api.Get("/comment/:postID", apiGetComment())
 }
 
 // creates a user comment for specific postID
@@ -44,5 +45,20 @@ func apiPostComment() func(c *fiber.Ctx) error {
 		kafkaProducer.ProduceComment(*kafkaComment)
 
 		return ResponseWithData(c, newComment)
+	}
+}
+
+func apiGetComment() func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		getIntPostID, err := strconv.ParseInt(c.Params("postID"), 10, 32)
+		if err != nil {
+			return ResponseWithError(c, err.Error(), nil)
+		}
+
+		comments, err := mysql.GetCommentsForPost(uint(getIntPostID))
+		if err != nil {
+			return ResponseWithError(c, err.Error(), nil)
+		}
+		return ResponseWithData(c, comments)
 	}
 }

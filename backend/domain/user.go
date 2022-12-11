@@ -14,6 +14,7 @@ type User struct {
 	// password is omited in json, there is no need to show it anywhere
 }
 
+// when two primary keys are added, gorm creates a Composite key with those values
 type UserFollower struct {
 	Base
 	FollowerID  uint `gorm:"primaryKey;autoIncrement:false;not null"`
