@@ -5,14 +5,11 @@ import (
 	"encoding/json"
 	"telemetry/domain"
 	"telemetry/helpers"
-	"time"
 
 	"github.com/olivere/elastic/v7"
 )
 
 func CreatePost(post domain.KafkaPost) (*elastic.IndexResponse, error) {
-
-	post.CreatedAt = post.CreatedAt.Add(RandDay(1, 20) * 24 * time.Hour)
 	dataJSON, _ := json.Marshal(post)
 	jsonString := string(dataJSON)
 	res, err := ESClient.Index().

@@ -15,7 +15,6 @@ func RandDay(min, max int) time.Duration {
 	return time.Duration(rand.Intn(max-min)+min) * -1
 }
 func CreateUserRegister(user domain.User) (*elastic.IndexResponse, error) {
-	user.CreatedAt = user.CreatedAt.Add(RandDay(1, 4) * 24 * time.Hour)
 	dataJSON, _ := json.Marshal(user)
 	jsonString := string(dataJSON)
 	res, err := ESClient.Index().
