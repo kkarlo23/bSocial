@@ -2,6 +2,7 @@ package rest
 
 import (
 	"bSocial/domain"
+	"bSocial/helpers"
 	"bSocial/interface/kafkaProducer"
 	"bSocial/interface/mysql"
 	"strconv"
@@ -12,6 +13,7 @@ import (
 func InitCommentApi(api fiber.Router) {
 	api.Post("/comment/:postID", apiPostComment())
 	api.Get("/comment/:postID", apiGetComment())
+	api.Get("/notifications", apiGetNewNotification())
 }
 
 // creates a user comment for specific postID
@@ -56,6 +58,18 @@ func apiGetComment() func(c *fiber.Ctx) error {
 		}
 
 		comments, err := mysql.GetCommentsForPost(uint(getIntPostID))
+		if err != nil {
+			return ResponseWithError(c, err.Error(), nil)
+		}
+		return ResponseWithData(c, comments)
+	}
+}
+
+func apiGetNewNotification() func(c *fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		thisUserID := helpers.ExtractJWTUserID(c)
+
+		comments, err := mysql.GetUndeliveredComments(thisUserID)
 		if err != nil {
 			return ResponseWithError(c, err.Error(), nil)
 		}

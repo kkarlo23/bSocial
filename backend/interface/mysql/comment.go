@@ -40,3 +40,24 @@ func GetCommentForKafka(commentID uint) (*domain.KafkaComment, error) {
 	}
 	return &kafkaComment, nil
 }
+
+func GetUndeliveredComments(userID uint) ([]domain.Comment, error) {
+	var comments []domain.Comment
+	var commentIDS []uint
+	if result := MySql.
+		Where("posts.user_id = ?", userID).
+		Where("comments.delivered = ?", false).
+		Joins("join posts on comments.post_id = posts.id").
+		Find(&comments); result.Error != nil {
+
+		return nil, GenericDBError()
+	}
+	for _, comment := range comments {
+		commentIDS = append(commentIDS, comment.ID)
+	}
+	if resultUpdate := MySql.Table("comments").Where("id IN ?", commentIDS).Update("delivered", true); resultUpdate.Error != nil {
+		return nil, GenericDBError()
+	}
+
+	return comments, nil
+}
