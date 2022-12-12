@@ -1,0 +1,32 @@
+{
+  "kafka": {
+    "kafkaProtocol": "tcp",
+    "kafkaHost": "localhost",
+    "kafkaPort": "9092",
+    "userRegisterTopic": {
+      "name": "user_register_json",
+      "consumerGroupID": "userregisterconsumer",
+      "partition": 0
+    },
+    "postTopic": {
+      "name": "post_json",
+      "consumerGroupID": "postconsumer",
+      "partition": 0
+    },
+    "commentTopic": {
+      "name": "comment_json",
+      "consumerGroupID": "commentconsumer",
+      "partition": 0
+    }
+  },
+  "elasticSearch": {
+    "elasticSearchProtocol": "http",
+    "elasticSearchHost": "localhost",
+    "elasticSearchPort": "9200",
+    "indices": {
+      "userRegister": "user_register",
+      "post": "post",
+      "comment": "comment"
+    }
+  }
+}

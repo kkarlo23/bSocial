@@ -1,0 +1,29 @@
+{
+  "mySql": {
+    "dbUser": "bSocialUser",
+    "dbPassword": "bSocialPassword",
+    "dbHost": "localhost",
+    "dbPort": "3306"
+  },
+  "kafka": {
+    "kafkaProtocol": "tcp",
+    "kafkaHost": "localhost",
+    "kafkaPort": "9092",
+    "userRegisterTopic": {
+      "name": "user_register_json",
+      "partition": 0
+    },
+    "postTopic": {
+      "name": "post_json",
+      "partition": 0
+    },
+    "commentTopic": {
+      "name": "comment_json",
+      "partition": 0
+    }
+  },
+  "json": {
+    "secret": "superSecretString",
+    "expMinute": 500
+  }
+}
